@@ -1,0 +1,132 @@
+version: "3.8"
+
+services:
+  ######### api-gateway service #########
+  api-gateway:
+    build: ./gateway
+    env_file:
+      - .env
+    ports:
+      - "${GATEWAY_PORT}:5000"
+    depends_on:
+      - auth
+      - projects
+      - scraping
+      - mongodb
+    networks:
+      network:
+        ipv4_address: ${GATEWAY_IP}
+    restart: unless-stopped
+    volumes:
+      - ./gateway:/app
+
+  mongodb:
+    image: mongo:latest
+    env_file:
+      - .env
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+    ports:
+      - "${M_DB_PORT}:${MONGO_PORT}"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      network:
+        ipv4_address: ${MONGO_IP}
+
+  ######### scraping service #########
+  scraping:
+    build: ./scraping
+    env_file:
+      - .env
+    ports:
+      - "${SCRAPING_PORT}:5002"
+    volumes:
+      - ./scraping:/app
+    restart: unless-stopped
+    networks:
+      network:
+        ipv4_address: ${SCRAPING_IP}
+
+  ######### projects service #########
+  projects:
+    build: ./projects
+    env_file:
+      - .env
+    ports:
+      - "${PROJECT_PORT}:5001"
+    volumes:
+      - ./projects:/app
+    depends_on:
+      - projects_db
+    restart: unless-stopped
+    networks:
+      network:
+        ipv4_address: ${PROJECT_IP}
+
+  projects_db:
+    image: postgres:latest
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${PROJECTS_DB_USER}
+      POSTGRES_PASSWORD: ${PROJECTS_DB_PASSWORD}
+      POSTGRES_DB: ${PROJECTS_DB_NAME}
+    ports:
+      - "${PROJECTS_DB_PORT}:${P_DB_PORT}"
+    volumes:
+      - projects_data:/var/lib/postgresql/data
+    networks:
+      network:
+        ipv4_address: ${PROJECT_DB_IP}
+
+  ######### auth service #########
+  auth:
+    build: ./auth
+    env_file:
+      - .env
+    ports:
+      - "${AUTH_PORT}:5003"
+    volumes:
+      - ./auth:/app
+    depends_on:
+      - auth_db
+    restart: unless-stopped
+    networks:
+      network:
+        ipv4_address: ${AUTH_IP}
+
+  auth_db:
+    image: postgres:latest
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${AUTH_DB_USER}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_DB: ${AUTH_DB_NAME}
+    ports:
+      - "${AUTH_DB_PORT}:${A_DB_PORT}"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    networks:
+      network:
+        ipv4_address: ${AUTH_DB_IP}
+
+networks:
+  network:
+    name: ${APP_NAME}_network
+    driver: "bridge"
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  projects_data:
+    name: ${APP_NAME}_projects_data
+  auth_data:
+    name: ${APP_NAME}_auth_data
+  mongo_data:
+    name: ${APP_NAME}_mongo_data
