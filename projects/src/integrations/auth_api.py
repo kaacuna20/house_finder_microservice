@@ -5,7 +5,7 @@ config = Settings.get_config()
 
 class AuthApi:
     def __init__(self):
-        self.base_url = config.GATEWAY_URL
+        self.base_url = config.PROXY_URL
         self.headers = {
             'Content-Type': 'application/json'
         }

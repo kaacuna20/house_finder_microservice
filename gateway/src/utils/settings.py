@@ -8,7 +8,10 @@ class BaseConfig:
     PROJECT_SERVICE_URL = environ.get("PROJECT_SERVICE_URL", "http://127.0.0.1:5001/")
     AUTH_SERVICE_URL = environ.get("AUTH_SERVICE_URL", "http://127.0.0.1:5003/")
     SCRAPING_SERVICE_URL = environ.get("SCRAPING_SERVICE_URL", "http://127.0.0.1:5002/")
- 
+    CACHE_TYPE = environ.get("CACHE_TYPE", "RedisCache")
+    CACHE_REDIS_URL = environ.get("REDIS_URL", "redis://localhost:6379/0")
+    CACHE_DEFAULT_TIMEOUT = int(environ.get("CACHE_DEFAULT_TIMEOUT", 300))
+     
  
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""

@@ -3,16 +3,16 @@ from src.utils.router import Router
 from src.utils.serializers import GetItemRoute, CreateLog
 from src.utils.normalize_path import normalize_route
 from src.services.route_service import RouteTableService
-from src.services.activity_log_service import ActivityLogService
 from src.integrations.auth_api import AuthAPI
+from src.utils.threading_task import LoggingThread
 from src.utils.model_object import DataResponse
+from src.utils.caching import cache
 from http import HTTPStatus
 
 class GatewayService:
     def __init__(self):
         self.router = Router()
         self.auth_api = AuthAPI(self.router.auth)
-        self.activy_log_service = ActivityLogService()
         self.route_table_service = RouteTableService()
         
     def proxy(self, request, path):
@@ -73,8 +73,8 @@ class GatewayService:
                 params=query_params,
                 json=body
             )
-            self.activy_log_service.create_activity_log(
-                CreateLog(
+
+            log_data = CreateLog(
                     name="Gateway Service",
                     service=service,
                     causer=middleware_response[0].get("user")['email'] if middleware_response[0].get("user") else "",
@@ -92,8 +92,10 @@ class GatewayService:
                         },
                         "response": response_api.json(),
                     }
-                )
             )
+            # guardar el log de actividad en un hilo separado
+            LoggingThread(log_data).start()
+            
             response.data = response_api.json()['data']
             response.status_code = response_api.json()['status_code']
             response.message = response_api.json()['message']
@@ -126,7 +128,7 @@ class GatewayService:
         if not auth_token:
             return {"error": "Unauthorized"}, HTTPStatus.UNAUTHORIZED
         
-        user = self.get_user_authenticate(auth_token)
+        user = self._get_user_authenticate(auth_token)
         if user['error']:
             return {"error": "Unauthorized"}, HTTPStatus.UNAUTHORIZED
         
@@ -141,12 +143,17 @@ class GatewayService:
         if not action:
             return {"error": "Action not specified"}, HTTPStatus.BAD_REQUEST
         
-        if not self.validate_permission(user, module, service, action):
+        if not self._validate_permission(user, module, service, action):
             return {"error": "Unauthorized"}, HTTPStatus.UNAUTHORIZED
         
         return {"status": "success", "user": user}, HTTPStatus.OK 
     
-    def get_user_authenticate(self, token):
+    def _get_user_authenticate(self, token: str)-> dict:
+        user = cache.get(token)
+        if user:
+            print("User found in cache")
+            return user 
+        
         user_data = self.auth_api.get_user_data(token)#request.headers.get("Authorization"))
         if user_data.get("error"):
             return {"error": user_data.get("error")}
@@ -160,10 +167,11 @@ class GatewayService:
             "role": user_data.get("data")["role"]["reference"],
             "error":None,
         }
+        cache.set(token, user, timeout=300)
         
         return user
         
-    def validate_permission(self, user, module, service, action):
+    def _validate_permission(self, user, module, service, action):
         """
         Validate if the user has permission to access the requested module and service.
         """

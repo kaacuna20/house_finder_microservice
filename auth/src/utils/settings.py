@@ -9,7 +9,7 @@ class BaseConfig:
     HASH_METHOD = environ.get('HASH_METHOD', 'pbkdf2:sha256')
     HASH_SALT_LENGTH = environ.get('HASH_SALT_LENGTH', 16)
     URL_PREFIX = '/api/v1/auth'
-    ALLOW_ORIGIN = {"127.0.0.1", environ.get('GATEWAY_IP')}
+    ALLOW_ORIGIN = {"127.0.0.1", environ.get('GATEWAY_IP_1'), environ.get('GATEWAY_IP_2'), environ.get('GATEWAY_IP_3')}
     DEBUG = environ.get('DEBUG', True)
  
  

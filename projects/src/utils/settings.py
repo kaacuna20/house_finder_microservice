@@ -5,8 +5,8 @@ class BaseConfig:
     SECRET_KEY = environ.get('SECRET_APP_KEY', 'your_secret_key')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     URL_PREFIX = '/api/v1/projects'
-    GATEWAY_URL = environ.get('GATEWAY_URL', 'http://127.0.0.1:5002/')
-    ALLOW_ORIGIN = {"127.0.0.1", environ.get('GATEWAY_IP')}
+    PROXY_URL = environ.get('PROXY_URL', 'http://127.0.0.1:80/')
+    ALLOW_ORIGIN = {"127.0.0.1", environ.get('GATEWAY_IP_1'), environ.get('GATEWAY_IP_2'), environ.get('GATEWAY_IP_3')}
     DEBUG = environ.get('DEBUG', True)
     APIKEY = environ.get('SCRAPING_API_KEY', 'your_api_key')
  

@@ -4,6 +4,7 @@ from src.routes.activity_log import log_bp
 from src.routes.routes import route_bp
 from src.routes.gateway import gateway_bp
 from src.utils.settings import Settings
+from src.utils.caching import cache
 
 config = Settings.get_config()
 
@@ -11,6 +12,9 @@ app = Flask(__name__)
 app.config.from_object(config)
 print(app.config)
 root_url = app.config["URL_PREFIX"]
+
+# Initialize cache
+cache.init_app(app)
 
 app.register_blueprint(log_bp, url_prefix=f"{root_url}/activity-log")
 app.register_blueprint(route_bp, url_prefix=f"{root_url}/routes-table")
