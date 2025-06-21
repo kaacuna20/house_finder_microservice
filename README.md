@@ -7,6 +7,9 @@
 ## 📁 Estructura del Proyecto
 ```ini
 house_finder_microservice/
+├── proxy/             # proxy server
+│   └── nginx.conf
+│   └── Dockerfile
 ├── auth/              # Microservicio de autenticación y autorización
 │   └── .env
 │   └── app.py
