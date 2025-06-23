@@ -1,3 +1,4 @@
+import logging
 from src.services.interfaces.IProjectUserQualification import IProjectUserQualification
 from src.query.project_user_query import ProjectUserQualificationQuery
 from src.integrations.auth_api import AuthApi   
@@ -5,6 +6,7 @@ from src.utils.serializers import CreateProjectUserQualification
 from src.utils.model_object import DataResponse
 from http import HTTPStatus
 
+logger = logging.getLogger(__name__)
 
 class ProjectUserQualificationService(IProjectUserQualification):
     
@@ -15,11 +17,13 @@ class ProjectUserQualificationService(IProjectUserQualification):
     def get_qualifications_by_user(self, user: str):
         response = DataResponse()
         try:
+            logger.info(f"Fetching qualifications for user: {user}")
             if not user:
                 response.status_code = HTTPStatus.BAD_REQUEST
                 response.message = "User email is required."
                 return response
             qualifications = self.query.get_by_user(user)
+            logger.info(f"Qualifications found: {qualifications}")
             if not qualifications:
                 response.status_code = HTTPStatus.NOT_FOUND
                 response.message = "No qualifications found for this user."
@@ -29,19 +33,22 @@ class ProjectUserQualificationService(IProjectUserQualification):
             response.status_code = HTTPStatus.OK
             return response
         except Exception as e:
+            logger.error(f"Error fetching qualifications for user {user}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
-            response.message = str(e)
+            response.message = str(e.args)
             return response
         
     def get_qualifications_by_project(self, project_slug: str):
         response = DataResponse()
         try:
+            logger.info(f"Fetching qualifications for project: {project_slug}")
             if not project_slug:
                 response.status_code = HTTPStatus.BAD_REQUEST
                 response.message = "Project slug is required."
                 return response
             
             qualifications = self.query.get_by_project(project_slug)
+            logger.info(f"Qualifications found: {qualifications}")
             if not qualifications:
                 response.status_code = HTTPStatus.NOT_FOUND
                 response.message = "No qualifications found for this project."
@@ -51,8 +58,9 @@ class ProjectUserQualificationService(IProjectUserQualification):
             response.status_code = HTTPStatus.OK
             return response
         except Exception as e:
+            logger.error(f"Error fetching qualifications for project {project_slug}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
-            response.message = str(e)
+            response.message = str(e.args)
             return response
         
     def create(self, request, data):
@@ -72,9 +80,10 @@ class ProjectUserQualificationService(IProjectUserQualification):
             response.message = "Qualification created successfully."
             return response
         except Exception as e:
+            logger.error(f"Error creating qualification: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error creating qualification: "
-            response.data = str(e)
+            response.data = str(e.args)
             return response
         
     def delete(self, id: int):
@@ -95,6 +104,7 @@ class ProjectUserQualificationService(IProjectUserQualification):
             response.message = "Qualification deleted successfully."
             return response
         except Exception as e:
+            logger.error(f"Error deleting qualification with ID {id}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error deleting qualification"
             response.data = str(e)

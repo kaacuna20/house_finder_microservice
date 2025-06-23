@@ -1,3 +1,4 @@
+import logging
 from flask_jwt_extended import create_access_token
 from src.services.interfaces.IAuthenticateService import IAuthenticateService
 from src.utils.serializers import AuthUser, Token
@@ -6,6 +7,7 @@ from src.utils.model_object import DataResponse
 from src.query.authenticate_query import AuthenticateQuery
 from http import HTTPStatus
 
+logger = logging.getLogger(__name__)
 
 class AuthenticateService(IAuthenticateService):
     
@@ -28,6 +30,7 @@ class AuthenticateService(IAuthenticateService):
                 response.error = "Invalid email or password."
             return response
         except Exception as e:
+            logger.error(f"Authentication error: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Authentication failed."
             response.error = str(e)
@@ -36,6 +39,7 @@ class AuthenticateService(IAuthenticateService):
     def generate_token(self, user):
         """Generate a token for the authenticated user."""
         token = create_access_token(identity=user)
+        logger.info(f"Token generated for user: {user}")
         return {"access_token": token, "token_type": "Bearer"}
 
 
@@ -46,7 +50,7 @@ class AuthenticateService(IAuthenticateService):
         try:
             decoded_token = decode_token(token.access_token)
             user_decoded = decoded_token.get("sub")
-
+            logger.info(f"Decoded token: {decoded_token}")
             if not user_decoded:
                 response.status_code = HTTPStatus.UNAUTHORIZED
                 response.message = "Invalid token."
@@ -68,6 +72,7 @@ class AuthenticateService(IAuthenticateService):
             return response
 
         except Exception as e:
+            logger.error(f"Error retrieving user from token: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Failed to retrieve user from token."
             response.error = str(e)

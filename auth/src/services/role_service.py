@@ -1,9 +1,11 @@
+import logging
 from src.services.interfaces.IRoleService import IRoleService
 from src.query.role_query import RoleQuery
 from src.utils.serializers import CreateRole
 from src.utils.model_object import DataResponse
 from http import HTTPStatus
 
+logger = logging.getLogger(__name__)
 
 class RoleService(IRoleService):
     
@@ -19,6 +21,7 @@ class RoleService(IRoleService):
             response.status_code = HTTPStatus.OK
             return response
         except Exception as e:
+            logger.error(f"Error fetching roles: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error fetching roles"
             response.error = str(e.args)
@@ -37,6 +40,7 @@ class RoleService(IRoleService):
             response.status_code = HTTPStatus.OK
             return response
         except Exception as e:
+            logger.error(f"Error fetching role with ID {id}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = f"Error fetching role with ID {id}"
             response.error = str(e.args)
@@ -51,6 +55,7 @@ class RoleService(IRoleService):
             response.status_code = HTTPStatus.CREATED
             return response
         except Exception as e:
+            logger.error(f"Error creating role: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error creating role"
             response.error = str(e.args)
@@ -73,6 +78,7 @@ class RoleService(IRoleService):
             response.status_code = HTTPStatus.OK
             return response
         except Exception as e:
+            logger.error(f"Error updating role with ID {pk}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = f"Error updating role with ID {pk}"
             response.error = str(e.args)
@@ -90,6 +96,7 @@ class RoleService(IRoleService):
             response.status_code = HTTPStatus.NO_CONTENT
             return response
         except Exception as e:
+            logger.error(f"Error deleting role with ID {pk}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = f"Error deleting role with ID {pk}"
             response.error = str(e.args)

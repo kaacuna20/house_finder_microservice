@@ -1,9 +1,12 @@
+import logging
 from src.services.interfaces.IRouteTableService import IRouteTableService
 from src.query.routes_query import RouteQuery
 from src.utils.serializers import CreateRoute, GetItemRoute
 from src.utils.model_object import DataResponse
 from http import HTTPStatus
 
+
+logger = logging.getLogger(__name__)
 
 class RouteTableService(IRouteTableService):
     """Service class for managing routes in the route table."""
@@ -26,9 +29,10 @@ class RouteTableService(IRouteTableService):
             response.message = "Routes retrieved successfully."
             return response
         except Exception as e:
+            logger.error(f"Error retrieving routes: {e}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error retrieving routes."
-            response.error = str(e)
+            response.error = str(e.args)
             return response
 
     def add_route(self, data: CreateRoute) -> dict:
@@ -42,9 +46,10 @@ class RouteTableService(IRouteTableService):
             response.message = "Route created successfully."
             return response
         except Exception as e:
+            logger.error(f"Error creating route: {e}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error creating route."
-            response.error = str(e)
+            response.error = str(e.args)
             return response
     
     def update_route(self, route_id, new_route):
@@ -57,9 +62,10 @@ class RouteTableService(IRouteTableService):
             response.message = "Route updated successfully."
             return response
         except Exception as e:
+            logger.error(f"Error updating route: {e}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error updating route."
-            response.error = str(e)
+            response.error = str(e.args)
             return response
     
     def delete_route(self, route_id):
@@ -72,7 +78,8 @@ class RouteTableService(IRouteTableService):
             response.message = "Route deleted successfully."
             return response
         except Exception as e:
+            logger.error(f"Error deleting route: {e}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error deleting route."
-            response.error = str(e)
+            response.error = str(e.args)
             return response

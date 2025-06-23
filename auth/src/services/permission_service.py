@@ -1,9 +1,11 @@
+import logging
 from src.services.interfaces.IPermissionService import IPermisionService
 from src.utils.serializers import CreatePermision
 from src.query.permission_query import PermissionQuery
 from src.utils.model_object import DataResponse
 from http import HTTPStatus
 
+logger = logging.getLogger(__name__)
 
 class PermisionService(IPermisionService):
     
@@ -23,6 +25,7 @@ class PermisionService(IPermisionService):
             response.status_code = HTTPStatus.OK
             return response
         except Exception as e:
+            logger.error(f"Error fetching permissions by role {role}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error fetching permissions by role"
             response.error = str(e.args)
@@ -56,6 +59,7 @@ class PermisionService(IPermisionService):
             response.status_code = HTTPStatus.CREATED
             return response
         except Exception as e:
+            logger.error(f"Error creating permission: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error creating permission"
             response.error = str(e.args)
@@ -78,6 +82,7 @@ class PermisionService(IPermisionService):
             response.status_code = HTTPStatus.OK
             return response
         except Exception as e:
+            logger.error(f"Error updating permission with ID {pk}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error updating permission"
             response.error = str(e.args)
@@ -100,6 +105,7 @@ class PermisionService(IPermisionService):
             response.status_code = HTTPStatus.NO_CONTENT
             return response
         except Exception as e:
+            logger.error(f"Error deleting permission with ID {pk}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error deleting permission"
             response.error = str(e.args)

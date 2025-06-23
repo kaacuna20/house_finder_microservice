@@ -1,10 +1,12 @@
 
+import logging
+from http import HTTPStatus
 from src.query.user_query import UserQuery
 from src.services.interfaces.IUserService import IUserService
 from src.utils.serializers import CreateUser, UpdateUser
 from src.utils.model_object import DataResponse
-from http import HTTPStatus
 
+logger = logging.getLogger(__name__)
 
 class UserService(IUserService):
     
@@ -21,6 +23,7 @@ class UserService(IUserService):
             return response
         
         except Exception as e:
+            logger.error(f"Error fetching users: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error fetching users"
             response.error = str(e.args)
@@ -46,6 +49,7 @@ class UserService(IUserService):
             return response
 
         except Exception as e:
+            logger.error(f"Error fetching user with ID {id}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = f"Error fetching user with ID {id}"
             response.error = str(e.args)
@@ -61,6 +65,7 @@ class UserService(IUserService):
             return response   
             
         except Exception as e:
+            logger.error(f"Error creating user: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error creating user"
             response.error = str(e.args)
@@ -85,6 +90,7 @@ class UserService(IUserService):
             return response
         
         except Exception as e:
+            logger.error(f"Error updating user with ID {pk}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = f"Error updating user with ID {pk}"
             response.error = str(e.args)
@@ -110,6 +116,7 @@ class UserService(IUserService):
             return response
         
         except Exception as e:
+            logger.error(f"Error deleting user with ID {pk}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = f"Error deleting user with ID {pk}"
             response.error = str(e.args)

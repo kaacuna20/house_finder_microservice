@@ -8,8 +8,10 @@ from src.routes.company import company_bp
 from src.routes.project_user import project_user_bp
 from src.utils.settings import Settings
 from src.utils.middleware import validate_origin_middleware
+from logging.config import dictConfig
 
 settings_module = Settings.get_config()
+dictConfig(settings_module.LOGGING_CONFIG)
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object(settings_module)

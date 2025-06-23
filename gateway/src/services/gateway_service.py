@@ -1,3 +1,4 @@
+import logging
 import requests
 from src.utils.router import Router
 from src.utils.serializers import GetItemRoute, CreateLog
@@ -8,6 +9,8 @@ from src.utils.threading_task import LoggingThread
 from src.utils.model_object import DataResponse
 from src.utils.caching import cache
 from http import HTTPStatus
+
+logger = logging.getLogger(__name__)
 
 class GatewayService:
     def __init__(self):
@@ -48,6 +51,7 @@ class GatewayService:
             action = get_route[0].get("action")
             
             router = self.router.get_service(service)
+            logger.info(f"Router for service {service}: {router}")
             if not router:
                 response.status_code = HTTPStatus.NOT_FOUND
                 response.message = "Service not found."
@@ -103,15 +107,17 @@ class GatewayService:
             return response
         
         except requests.exceptions.RequestException as e:
+            logger.error(f"Error connecting to the service: {e}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error connecting to the service from Gateway."
-            response.error = str(e)
+            response.error = str(e.args)
             return response
         
         except Exception as e:
+            logger.error(f"Error processing the request: {e}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error processing the request from Gateway."
-            response.error = str(e)
+            response.error = str(e.args)
             return response
         
     
@@ -151,7 +157,7 @@ class GatewayService:
     def _get_user_authenticate(self, token: str)-> dict:
         user = cache.get(token)
         if user:
-            print("User found in cache")
+            logger.info(f"User found in cache: {user}")
             return user 
         
         user_data = self.auth_api.get_user_data(token)#request.headers.get("Authorization"))

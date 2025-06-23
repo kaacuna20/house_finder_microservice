@@ -1,9 +1,11 @@
+import logging
 from src.services.interfaces.IActivityLogService import IActivityLogService
 from src.query.activity_log_query import ActivityLogQuery
 from src.utils.serializers import CreateLog, GetItemLog
 from src.utils.model_object import DataResponse
 from http import HTTPStatus
 
+logger = logging.getLogger(__name__)
 
 class ActivityLogService(IActivityLogService):
     """Service class for managing activity logs."""
@@ -26,9 +28,10 @@ class ActivityLogService(IActivityLogService):
             response.message = "Logs retrieved successfully."
             return response
         except Exception as e:
+            logger.error(f"Error retrieving logs: {e}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error retrieving logs."
-            response.error = str(e)
+            response.error = str(e.args)
             return response
         
     def create_activity_log(self, data: CreateLog) -> dict:
@@ -42,9 +45,10 @@ class ActivityLogService(IActivityLogService):
             response.message = "Log created successfully."
             return response
         except Exception as e:
+            logger.error(f"Error creating log: {e}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error creating log."
-            response.error = str(e)
+            response.error = str(e.args)
             return response
 
     def get_log(self, data: GetItemLog) -> list:
@@ -62,7 +66,8 @@ class ActivityLogService(IActivityLogService):
             response.message = "Log retrieved successfully."
             return response
         except Exception as e:
+            logger.error(f"Error retrieving log: {e}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error retrieving log."
-            response.error = str(e)
+            response.error = str(e.args)
             return response

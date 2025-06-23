@@ -1,9 +1,11 @@
+import logging
 from src.services.interfaces.ICompanyService import ICompanyService
 from src.utils.model_object import DataResponse
 from src.utils.serializers import CreateCompany
 from src.query.company_query import CompanyQuery
 from http import HTTPStatus
 
+logger = logging.getLogger(__name__)
 
 class CompanyService(ICompanyService):
     
@@ -19,9 +21,10 @@ class CompanyService(ICompanyService):
             response.message = "Companies retrieved successfully"
             return response
         except Exception as e:
+            logger.error(f"Error retrieving companies: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error retrieving companies"
-            response.error = str(e)
+            response.error = str(e.args)
             return response
         
     def getByNit(self, nit):
@@ -41,9 +44,10 @@ class CompanyService(ICompanyService):
             response.message = "Company retrieved successfully"
             return response
         except Exception as e:
+            logger.error(f"Error retrieving company by NIT {nit}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error retrieving company"
-            response.error = str(e)
+            response.error = str(e.args)
             return response
             
     def create(self, data: CreateCompany):
@@ -55,9 +59,10 @@ class CompanyService(ICompanyService):
             response.message = "Company created successfully"
             return response
         except Exception as e:
+            logger.error(f"Error creating company: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error creating company"
-            response.error = str(e)
+            response.error = str(e.args)
             return response
         
     def update(self, id: int, data: CreateCompany):
@@ -77,10 +82,12 @@ class CompanyService(ICompanyService):
             response.message = "Company updated successfully"
             return response
         except Exception as e:
+            logger.error(f"Error updating company with ID {id}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error updating company"
-            response.error = str(e)
+            response.error = str(e.args)
             return response
+        
     def delete(self, id):
         response = DataResponse()
         try:
@@ -98,7 +105,8 @@ class CompanyService(ICompanyService):
             response.message = "Company deleted successfully"
             return response
         except Exception as e:
+            logger.error(f"Error deleting company with ID {id}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error deleting company"
-            response.error = str(e)
+            response.error = str(e.args)
             return response

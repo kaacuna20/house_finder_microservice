@@ -1,8 +1,10 @@
+import logging
 from src.utils.model_object import DataResponse
 from http import HTTPStatus
 from src.utils.settings import Settings
 import pandas as pd 
 
+logger = logging.getLogger(__name__)
 config = Settings.get_config()  
 
 class SyncService:
@@ -11,15 +13,14 @@ class SyncService:
         self.api_key = config.APIKEY
         
     def sync_projects(self, request):
-        
         """
         Sync data projects with the gateway service.
         """
         response = DataResponse()
         list_data =[]
         try:
-            
             apikey = request.headers.get("x-api-key")
+            logger.info(f"Received API key: {apikey}")
             if apikey != self.api_key:
                 response.status_code = HTTPStatus.UNAUTHORIZED
                 response.message = "Unauthorized access - Invalid API key."
@@ -57,7 +58,8 @@ class SyncService:
             return response  
             
         except Exception as e:
+            logger.error(f"Error syncing projects: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Internal server error."
-            response.error = str(e)
+            response.error = str(e.args)
             return response

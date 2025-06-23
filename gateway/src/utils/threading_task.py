@@ -1,7 +1,8 @@
+import logging
 import threading
 from src.services.activity_log_service import ActivityLogService
 
-
+logger = logging.getLogger(__name__)
 class LoggingThread(threading.Thread):
     def __init__(self, log_data: dict):
         super().__init__()
@@ -12,4 +13,4 @@ class LoggingThread(threading.Thread):
         try:
             self.activity_log_service.create_activity_log(self.log_data)
         except Exception as e:
-            print(f"Error logging activity: {e}")
+            logger.error(f"Error in LoggingThread: {e}")

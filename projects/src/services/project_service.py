@@ -1,9 +1,12 @@
+import logging
 from src.services.interfaces.IProjectService import IProjectService
 from src.integrations.scraping_api import ScrapingAPI
 from src.utils.serializers import CreateProject
 from src.utils.model_object import DataResponse
 from src.query.project_query import ProjectQuery 
 from http import HTTPStatus
+
+logger = logging.getLogger(__name__)
 
 class ProjectService(IProjectService):
     
@@ -20,6 +23,7 @@ class ProjectService(IProjectService):
             response.message = "Projects fetched successfully"
             return response 
         except Exception as e:
+            logger.error(f"Error fetching projects: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error fetching projects"
             response.error = str(e.args)
@@ -43,6 +47,7 @@ class ProjectService(IProjectService):
             response.message = "Project fetched successfully"
             return response
         except Exception as e:
+            logger.error(f"Error fetching project by slug {slug}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR    
             response.message = "Error fetching project"
             response.error = str(e.args)
@@ -60,6 +65,7 @@ class ProjectService(IProjectService):
             response.message = "Project created successfully"
             return response
         except Exception as e:
+            logger.error(f"Error creating project: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error creating project"
             response.error = str(e.args)
@@ -81,6 +87,7 @@ class ProjectService(IProjectService):
             response.message = "Project updated successfully"
             return response
         except Exception as e:
+            logger.error(f"Error updating project: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error updating project"
             response.error = str(e.args)
@@ -102,6 +109,7 @@ class ProjectService(IProjectService):
             response.message = "Project deleted successfully"
             return response
         except Exception as e:
+            logger.error(f"Error deleting project with ID {id}: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error deleting project"
             response.error = str(e.args)
@@ -111,12 +119,14 @@ class ProjectService(IProjectService):
         response = DataResponse()
         try:
             data_request = self.scraping_api.get_data()
+            logger.info(f"Data request response: {data_request}")
             if not data_request:
                 response.status_code = HTTPStatus.NOT_FOUND
                 response.message = "No data found"
                 return response
             
             projects = data_request.get("data")['projects'] if data_request.get("data") else []
+            logger.info(f"Projects to sync: {projects}")
             if not projects:
                 response.status_code = HTTPStatus.NOT_FOUND
                 response.message = "No projects found"
@@ -151,9 +161,10 @@ class ProjectService(IProjectService):
             response.message = "Projects synced successfully"
             return response
         except Exception as e:
+            logger.error(f"Error syncing projects: {str(e)}")
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             response.message = "Error syncing projects"
-            response.error = str(e)
+            response.error = str(e.args)
             return response
 
     
